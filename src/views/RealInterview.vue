@@ -32,15 +32,14 @@
             >
               <ion-button
                 expand="block"
-                :disabled="isListening"
                 class="custom-button"
-                @click="startListening"
+                @click="toggleListening"
               >
                 <ion-icon
-                  :icon="micOutline"
+                  :icon="isListening ? stopCircleOutline : micOutline"
                   aria-hidden="true"
                 />
-                {{ isListening ? 'Listening...' : 'Use Microphone' }}
+                {{ isListening ? 'Stop Listening' : 'Use Microphone' }}
               </ion-button>
             </ion-col>
             <ion-col
@@ -57,7 +56,7 @@
                   :icon="bulbOutline"
                   aria-hidden="true"
                 />
-                {{ isLoading ? 'Generating...' : 'Get Suggestion' }}
+                {{ isLoading ? 'Generating...' : 'Get Answer Suggestion' }}
               </ion-button>
             </ion-col>
           </ion-row>
@@ -82,7 +81,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { IonPage, IonContent, IonText, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonInput, IonButton, IonIcon } from '@ionic/vue';
-import { micOutline, bulbOutline } from 'ionicons/icons';
+import { micOutline, bulbOutline, stopCircleOutline } from 'ionicons/icons';
 import { useInterviewStore } from '@/stores/interview';
 import { generateResponse } from '@/services/openai';
 import type { SpeechRecognition } from '@/types/SpeechRecognition';
@@ -116,13 +115,12 @@ function initializeSpeechRecognition() {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     recognition = new SpeechRecognition() as SpeechRecognition;
     recognition.lang = 'en-US';
-    recognition.continuous = false;
+    recognition.continuous = true; // Change this to true
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      interviewerQuestion.value = transcript;
-      isListening.value = false;
+      const transcript = event.results[event.results.length - 1][0].transcript;
+      interviewerQuestion.value += ' ' + transcript;
     };
 
     recognition.onerror = (event) => {
@@ -131,25 +129,32 @@ function initializeSpeechRecognition() {
     };
 
     recognition.onend = () => {
-      isListening.value = false;
+      if (isListening.value) {
+        recognition?.start(); // Restart if we're still supposed to be listening
+      }
     };
   } else {
     console.error('Speech recognition not supported in this browser');
   }
 }
 
-function startListening() {
+function toggleListening() {
   if (recognition) {
-    recognition.start();
-    isListening.value = true;
+    if (isListening.value) {
+      recognition.stop();
+      isListening.value = false;
+      // Automatically get suggestion when stopping listening
+      getSuggestion();
+    } else {
+      recognition.start();
+      isListening.value = true;
+    }
   } else {
     console.error('Speech recognition not initialized');
   }
 }
 
 async function getSuggestion() {
-  if (!interviewerQuestion.value) return;
-
   isLoading.value = true;
   const prompt = `
     You are an AI assistant helping a job candidate during an interview. The candidate has provided the following answers during a practice interview:
@@ -163,13 +168,13 @@ async function getSuggestion() {
   `;
 
   try {
-    suggestion.value = await generateResponse(prompt);
+    const response = await generateResponse(prompt);
+    suggestion.value = response;
   } catch (error) {
     console.error('Error generating suggestion:', error);
     suggestion.value = "Sorry, there was an error generating a suggestion. Please try again.";
   } finally {
     isLoading.value = false;
-    interviewerQuestion.value = '';
   }
 }
 </script>
