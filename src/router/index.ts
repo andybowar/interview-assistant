@@ -3,6 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 import HomePage from '@/views/HomePage.vue';
 import RealInterview from '@/views/RealInterview.vue';
 import PracticeInterview from '@/views/PracticeInterview.vue';
+import CodingChallenge from '@/views/CodingChallenge.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/practice-interview',
     name: 'PracticeInterview',
     component: PracticeInterview
+  },
+  {
+    path: '/coding-challenge',
+    name: 'CodingChallenge',
+    component: CodingChallenge
   }
 ];
 

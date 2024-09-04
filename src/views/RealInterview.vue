@@ -164,7 +164,11 @@ async function getSuggestion() {
     Now, the interviewer has asked the following question:
     "${interviewerQuestion.value}"
 
-    Please provide a suggested answer that incorporates relevant information from the practice answers while being tailored to the current question. The answer should be concise, professional, and demonstrate the candidate's strengths. The answer will also be spoken by the user so it should be in a natural, conversational tone. If there's no directly relevant information from the practice answers, provide a general suggestion based on common interview best practices.
+    Please provide a suggested answer that incorporates relevant information from the practice answers while being tailored to the current question. 
+    The answer should be concise, professional, and demonstrate the candidate's strengths. 
+    It should be formatted as bullet points.
+    It should make no reference to the practice interview or the interviewer. 
+    If there's no directly relevant information from the practice answers, provide a general suggestion based on common interview best practices.
   `;
 
   try {

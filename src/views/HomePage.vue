@@ -63,6 +63,34 @@
               </ion-card>
             </ion-col>
           </ion-row>
+          
+          <ion-row class="ion-align-items-stretch">
+            <ion-col
+              size="12"
+              size-md="6"
+              offset-md="3"
+              class="ion-padding"
+            >
+              <ion-card
+                button
+                class="full-height"
+                @click="selectOption('coding-challenge')"
+              >
+                <ion-card-header>
+                  <div class="icon-wrapper coding-challenge">
+                    <ion-icon
+                      :icon="codeSlash"
+                      size="large"
+                    />
+                  </div>
+                  <ion-card-title>Coding Challenge</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Test your skills with our latest coding challenges and improve your problem-solving abilities.
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
         </ion-grid>
       </div>
     </ion-content>
@@ -74,17 +102,19 @@ import {
   IonPage, IonContent, IonText, IonGrid, IonRow, IonCol, 
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon
 } from '@ionic/vue';
-import { personAdd, people } from 'ionicons/icons';
+import { personAdd, people, codeSlash } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const selectOption = (option: 'practice' | 'real') => {
+const selectOption = (option: 'practice' | 'real' | 'coding-challenge') => {
   console.log(`Selected option: ${option}`);
   if (option === 'practice') {
     router.push('/practice-interview');
-  } else {
+  } else if (option === 'real') {
     router.push('/real-interview');
+  } else if (option === 'coding-challenge') {
+    router.push('/coding-challenge');
   }
 };
 </script>
@@ -141,6 +171,11 @@ ion-card:hover {
 .icon-wrapper.real {
   background-color: var(--ion-color-success-tint);
   color: var(--ion-color-success);
+}
+
+.icon-wrapper.coding-challenge {
+  background-color: var(--ion-color-tertiary-tint);
+  color: var(--ion-color-tertiary);
 }
 
 ion-card-title {
