@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.VUE_APP_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true // Note: In a production app, you should use a backend to make API calls
 });
 
