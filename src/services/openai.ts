@@ -1,20 +1,28 @@
-import OpenAI from 'openai';
+import { createClient } from '@supabase/supabase-js'
 
-const openai = new OpenAI({
-  apiKey: process.env.VUE_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Note: In a production app, you should use a backend to make API calls
-});
+const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
+const supabaseAnonKey = process.env.VUE_APP_SUPABASE_ANON_KEY
+
+console.log(supabaseUrl)
+console.log(supabaseAnonKey)
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL or Anon Key is missing')
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function generateResponse(prompt: string): Promise<string> {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-    });
+    const { data, error } = await supabase.functions.invoke('openai', {
+      body: { query: prompt }
+    })
 
-    return completion.choices[0].message.content || "Sorry, I couldn't generate a response.";
+    if (error) throw error
+
+    return data.reply || "Sorry, I couldn't generate a response."
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
-    return "Sorry, there was an error generating a response.";
+    console.error('Error calling Supabase function:', error)
+    return "Sorry, there was an error generating a response."
   }
 }

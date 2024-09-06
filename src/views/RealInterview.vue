@@ -176,7 +176,11 @@ async function getSuggestion() {
     suggestion.value = response;
   } catch (error) {
     console.error('Error generating suggestion:', error);
-    suggestion.value = "Sorry, there was an error generating a suggestion. Please try again.";
+    if (error instanceof Error) {
+      suggestion.value = `Sorry, there was an error generating a suggestion: ${error.message}. Please try again.`;
+    } else {
+      suggestion.value = "Sorry, there was an unknown error generating a suggestion. Please try again.";
+    }
   } finally {
     isLoading.value = false;
   }
