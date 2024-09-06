@@ -38,14 +38,6 @@ dist-ssr
 ehthumbs.db
 Thumbs.db
 
-# Ionic specific
-.ionic
-.sass-cache
-.sourcemaps
-.tmp
-tmp
-temp
-
 # Capacitor
 www
 platforms

@@ -1,12 +1,13 @@
 export interface SpeechRecognition extends EventTarget {
+  // Add properties and methods used in your code
+  lang: string;
   continuous: boolean;
   interimResults: boolean;
-  lang: string;
+  start: () => void;
+  stop: () => void;
   onresult: (event: SpeechRecognitionEvent) => void;
   onerror: (event: SpeechRecognitionErrorEvent) => void;
   onend: () => void;
-  start: () => void;
-  stop: () => void;
 }
 
 interface SpeechRecognitionEvent {
@@ -20,7 +21,6 @@ interface SpeechRecognitionResultList {
 
 interface SpeechRecognitionResult {
   [index: number]: SpeechRecognitionAlternative;
-  isFinal: boolean;
   length: number;
 }
 
@@ -31,5 +31,4 @@ interface SpeechRecognitionAlternative {
 
 interface SpeechRecognitionErrorEvent extends Event {
   error: string;
-  message: string;
 }

@@ -1,98 +1,74 @@
 <template>
-  <ion-page>
-    <ion-content :fullscreen="true">
-      <div class="ion-padding">
-        <ion-text color="dark">
-          <h1 class="ion-text-center">
-            Coding Challenge
-          </h1>
-          <p class="ion-text-center subtitle">
-            Practice coding problems with AI assistance
-          </p>
-        </ion-text>
-        
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>Challenge Description</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-textarea
-              v-model="challengeDescription"
-              placeholder="Describe the coding challenge here"
-              :rows="4"
-            />
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>Programming Language</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-select
-              v-model="selectedLanguage"
-              placeholder="Select language"
-            >
-              <ion-select-option
-                v-for="lang in languages"
-                :key="lang"
-                :value="lang"
-              >
-                {{ lang }}
-              </ion-select-option>
-            </ion-select>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-grid>
-          <ion-row>
-            <ion-col
-              size="12"
-              size-md="6"
-            >
-              <ion-button
-                expand="block"
-                class="custom-button"
-                :disabled="isLoading || !challengeDescription.trim()"
-                @click="generateSolution"
-              >
-                {{ isLoading ? 'Generating...' : 'Get Solution' }}
-              </ion-button>
-            </ion-col>
-            <ion-col
-              size="12"
-              size-md="6"
-            >
-              <ion-button
-                expand="block"
-                class="custom-button"
-                @click="clearAll"
-              >
-                Clear All
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <ion-card
-          v-if="solution"
-          class="solution-card"
-        >
-          <ion-card-header>
-            <ion-card-title>Suggested Solution</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <pre><code>{{ solution }}</code></pre>
-          </ion-card-content>
-        </ion-card>
+  <div class="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold text-center text-gray-900 mb-2">
+        Coding Challenge
+      </h1>
+      <p class="text-xl text-center text-gray-600 mb-8">
+        Practice coding problems with AI assistance
+      </p>
+      
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">
+          Challenge Description
+        </h2>
+        <textarea
+          v-model="challengeDescription"
+          placeholder="Describe the coding challenge here"
+          rows="4"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
-    </ion-content>
-  </ion-page>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">
+          Programming Language
+        </h2>
+        <select
+          v-model="selectedLanguage"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option
+            v-for="lang in languages"
+            :key="lang"
+            :value="lang"
+          >
+            {{ lang }}
+          </option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <button
+          :disabled="isLoading || !challengeDescription.trim()"
+          class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          @click="generateSolution"
+        >
+          {{ isLoading ? 'Generating...' : 'Get Solution' }}
+        </button>
+        <button
+          class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          @click="clearAll"
+        >
+          Clear All
+        </button>
+      </div>
+
+      <div
+        v-if="solution"
+        class="bg-white rounded-lg shadow-md p-6"
+      >
+        <h2 class="text-2xl font-semibold mb-4">
+          Suggested Solution
+        </h2>
+        <pre><code>{{ solution }}</code></pre>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { IonPage, IonContent, IonText, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonTextarea, IonButton, IonSelect, IonSelectOption } from '@ionic/vue';
 import { generateResponse } from '@/services/openai';
 
 const challengeDescription = ref('');
@@ -147,55 +123,11 @@ function clearAll() {
 </script>
 
 <style scoped>
-ion-content {
-  --background: linear-gradient(180deg, #f4f5f8 0%, #e0e0e0 100%);
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  color: var(--ion-color-medium);
-  margin-bottom: 2rem;
-}
-
-ion-card {
-  margin: 1rem 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-ion-card-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-}
-
-.custom-button {
-  --border-radius: 16px;
-  margin: 0.5rem 0;
-}
-
-.solution-card {
-  margin-top: 2rem;
-}
-
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;
   background-color: #f4f4f4;
   padding: 1rem;
   border-radius: 8px;
-}
-
-ion-select {
-  width: 100%;
-  max-width: 100%;
-  --padding-start: 16px;
-  --padding-end: 16px;
 }
 </style>

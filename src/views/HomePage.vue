@@ -1,196 +1,76 @@
 <template>
-  <ion-page>
-    <ion-content :fullscreen="true">
-      <div class="ion-padding">
-        <ion-text color="dark">
-          <h1 class="ion-text-center">
-            Interview Assistant
-          </h1>
-          <p class="ion-text-center subtitle">
-            Choose your interview mode
-          </p>
-        </ion-text>
-        
-        <ion-grid class="ion-no-padding">
-          <ion-row class="ion-align-items-stretch">
-            <ion-col
-              size="12"
-              size-md="6"
-              class="ion-padding"
-            >
-              <ion-card
-                button
-                class="full-height"
-                @click="selectOption('practice')"
-              >
-                <ion-card-header>
-                  <div class="icon-wrapper practice">
-                    <ion-icon
-                      :icon="personAdd"
-                      size="large"
-                    />
-                  </div>
-                  <ion-card-title>Practice Interview</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                  Hone your skills with AI-powered mock interviews tailored to your experience level and desired role.
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-            
-            <ion-col
-              size="12"
-              size-md="6"
-              class="ion-padding"
-            >
-              <ion-card
-                button
-                class="full-height"
-                @click="selectOption('real')"
-              >
-                <ion-card-header>
-                  <div class="icon-wrapper real">
-                    <ion-icon
-                      :icon="people"
-                      size="large"
-                    />
-                  </div>
-                  <ion-card-title>Real Interview Assistance</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                  Get real-time support and guidance during your actual interview to boost your confidence and performance.
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-          
-          <ion-row class="ion-align-items-stretch">
-            <ion-col
-              size="12"
-              size-md="6"
-              offset-md="3"
-              class="ion-padding"
-            >
-              <ion-card
-                button
-                class="full-height"
-                @click="selectOption('coding-challenge')"
-              >
-                <ion-card-header>
-                  <div class="icon-wrapper coding-challenge">
-                    <ion-icon
-                      :icon="codeSlash"
-                      size="large"
-                    />
-                  </div>
-                  <ion-card-title>Coding Challenge</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                  Test your skills with our latest coding challenges and improve your problem-solving abilities.
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+  <div class="flex flex-col min-h-screen">
+    <header class="bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">
+          AI Interview Assistant
+        </h1>
+        <button
+          v-if="isAuthenticated"
+          class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          @click="signOut"
+        >
+          Sign Out
+        </button>
       </div>
-    </ion-content>
-  </ion-page>
+    </header>
+    <main class="flex-1">
+      <section class="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-purple-50 to-white">
+        <div class="container px-4 md:px-6">
+          <div class="flex flex-col items-center space-y-4 text-center">
+            <h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none mb-8">
+              Prepare for Your Dream Job
+            </h1>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-4xl">
+              <button
+                class="h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg flex flex-col items-center justify-center"
+                @click="navigateTo('PracticeInterview')"
+              >
+                <Video class="w-8 h-8 mb-2" />
+                <span>Practice Interview</span>
+              </button>
+              <button
+                class="h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg flex flex-col items-center justify-center"
+                @click="navigateTo('RealInterview')"
+              >
+                <Users class="w-8 h-8 mb-2" />
+                <span>Real Interview</span>
+              </button>
+              <button
+                class="h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg flex flex-col items-center justify-center"
+                @click="navigateTo('CodingChallenge')"
+              >
+                <Code class="w-8 h-8 mb-2" />
+                <span>Coding Challenge</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { 
-  IonPage, IonContent, IonText, IonGrid, IonRow, IonCol, 
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon
-} from '@ionic/vue';
-import { personAdd, people, codeSlash } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
+import { useSupabase } from '@/composables/useSupabase';
+import { Video, Users, Code } from 'lucide-vue-next'
 
 const router = useRouter();
+const { isAuthenticated } = useAuth();
+const { supabase } = useSupabase();
 
-const selectOption = (option: 'practice' | 'real' | 'coding-challenge') => {
-  console.log(`Selected option: ${option}`);
-  if (option === 'practice') {
-    router.push('/practice-interview');
-  } else if (option === 'real') {
-    router.push('/real-interview');
-  } else if (option === 'coding-challenge') {
-    router.push('/coding-challenge');
+function navigateTo(routeName: string) {
+  router.push({ name: routeName });
+}
+
+async function signOut() {
+  try {
+    await supabase.auth.signOut();
+    router.push({ name: 'Auth' });
+  } catch (error) {
+    console.error('Error signing out:', error);
   }
-};
+}
 </script>
-
-<style scoped>
-ion-content {
-  --background: linear-gradient(180deg, #f4f5f8 0%, #e0e0e0 100%);
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  color: var(--ion-color-medium);
-  margin-bottom: 2rem;
-}
-
-ion-card {
-  margin: 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-ion-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.full-height {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.icon-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  margin: 1rem auto;
-}
-
-.icon-wrapper.practice {
-  background-color: var(--ion-color-primary-tint);
-  color: var(--ion-color-primary);
-}
-
-.icon-wrapper.real {
-  background-color: var(--ion-color-success-tint);
-  color: var(--ion-color-success);
-}
-
-.icon-wrapper.coding-challenge {
-  background-color: var(--ion-color-tertiary-tint);
-  color: var(--ion-color-tertiary);
-}
-
-ion-card-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-}
-
-ion-card-content {
-  font-size: 1rem;
-  text-align: center;
-  color: var(--ion-color-medium);
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

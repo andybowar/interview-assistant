@@ -1,154 +1,161 @@
 <template>
-  <ion-page>
-    <ion-content :fullscreen="true">
-      <div class="ion-padding">
-        <ion-text color="dark">
-          <h1 class="ion-text-center">
-            Practice Interview
-          </h1>
-          <p class="ion-text-center subtitle">
-            Hone your skills with AI-powered mock interviews
+  <div class="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold text-center text-gray-900 mb-2">
+        Practice Interview
+      </h1>
+      <p class="text-xl text-center text-gray-600 mb-8">
+        Hone your skills with AI-powered mock interviews
+      </p>
+      
+      <div
+        v-if="!jobTitle"
+        class="bg-white rounded-lg shadow-md p-6 mb-6"
+      >
+        <h2 class="text-2xl font-semibold mb-4">
+          Before we begin
+        </h2>
+        <p class="mb-4">
+          What is the job title for which you are interviewing?
+        </p>
+        <input
+          v-model="jobTitleInput"
+          type="text"
+          placeholder="Enter job title"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+          @keyup.enter="setJobTitle"
+        >
+        <button
+          class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          @click="setJobTitle"
+        >
+          Start Interview
+        </button>
+      </div>
+
+      <div
+        v-else-if="currentQuestion"
+        class="space-y-6"
+      >
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            Question {{ currentQuestion.id }}
+          </h2>
+          <p class="text-gray-700">
+            {{ currentQuestion.question }}
           </p>
-        </ion-text>
-        
-        <div
-          v-if="!jobTitle"
-          class="job-title-container"
-        >
-          <ion-card>
-            <ion-card-header>
-              <ion-card-title>Before we begin</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <p>What is the job title for which you are interviewing?</p>
-              <ion-input
-                v-model="jobTitleInput"
-                placeholder="Enter job title"
-                @keyup.enter="setJobTitle"
-              />
-            </ion-card-content>
-          </ion-card>
-          <ion-button
-            expand="block"
-            class="custom-button"
-            @click="setJobTitle"
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            Your Answer
+          </h2>
+          <textarea
+            v-model="userAnswer"
+            placeholder="Type your answer here or use the microphone"
+            rows="6"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            @click="toggleListening"
           >
-            Start Interview
-          </ion-button>
-        </div>
-
-        <div
-          v-else-if="currentQuestion"
-          class="question-container"
-        >
-          <ion-card>
-            <ion-card-header>
-              <ion-card-title>Question {{ currentQuestion.id }}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <p>{{ currentQuestion.question }}</p>
-            </ion-card-content>
-          </ion-card>
-
-          <ion-card>
-            <ion-card-header>
-              <ion-card-title>Your Answer</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <ion-textarea
-                v-model="userAnswer"
-                placeholder="Type your answer here or use the microphone"
-                :rows="6"
+            <svg
+              v-if="isListening"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" />
+            </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                clip-rule="evenodd"
               />
-            </ion-card-content>
-          </ion-card>
-
-          <ion-grid>
-            <ion-row>
-              <ion-col 
-                size="12" 
-                size-md="4"
-              >
-                <ion-button
-                  expand="block"
-                  class="custom-button"
-                  @click="toggleListening"
-                >
-                  <ion-icon
-                    :icon="isListening ? stopCircleOutline : micOutline"
-                    aria-hidden="true"
-                  />
-                  {{ isListening ? 'Stop Listening' : 'Use Microphone' }}
-                </ion-button>
-              </ion-col>
-              <ion-col 
-                size="12" 
-                size-md="4"
-              >
-                <ion-button
-                  expand="block"
-                  :disabled="isLoading || isListening"
-                  class="custom-button"
-                  @click="submitAnswer"
-                >
-                  {{ isLoading ? 'Analyzing...' : 'Submit Answer' }}
-                </ion-button>
-              </ion-col>
-              <ion-col 
-                size="12" 
-                size-md="4"
-              >
-                <ion-button
-                  expand="block"
-                  :disabled="isLoading"
-                  class="custom-button skip-button"
-                  @click="skipQuestion"
-                >
-                  Skip Question
-                </ion-button>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-
-        <div
-          v-else-if="feedback"
-          class="feedback-container"
-        >
-          <ion-card>
-            <ion-card-header>
-              <ion-card-title>Interview Complete!</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <p>{{ feedback }}</p>
-            </ion-card-content>
-          </ion-card>
-
-          <ion-button
-            expand="block"
-            class="custom-button"
-            @click="finishInterview"
+            </svg>
+            {{ isListening ? 'Stop Listening' : 'Use Microphone' }}
+          </button>
+          <button
+            :disabled="isLoading || isListening"
+            class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            @click="submitAnswer"
           >
-            Finish
-          </ion-button>
-        </div>
-
-        <div
-          v-else
-          class="loading-container"
-        >
-          <ion-spinner name="crescent" />
-          <p>Generating final feedback...</p>
+            {{ isLoading ? 'Analyzing...' : 'Submit Answer' }}
+          </button>
+          <button
+            :disabled="isLoading"
+            class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+            @click="skipQuestion"
+          >
+            Skip Question
+          </button>
         </div>
       </div>
-    </ion-content>
-  </ion-page>
+
+      <div
+        v-else-if="feedback"
+        class="bg-white rounded-lg shadow-md p-6 mb-6"
+      >
+        <h2 class="text-2xl font-semibold mb-4">
+          Interview Complete!
+        </h2>
+        <p class="text-gray-700 whitespace-pre-line mb-6">
+          {{ feedback }}
+        </p>
+        <button
+          class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          @click="finishInterview"
+        >
+          Finish
+        </button>
+      </div>
+
+      <div
+        v-else
+        class="flex flex-col items-center justify-center h-64"
+      >
+        <svg
+          class="animate-spin h-10 w-10 text-indigo-600 mb-4"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+        <p class="text-gray-600">
+          Generating final feedback...
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { IonPage, IonContent, IonText, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonTextarea, IonButton, IonSpinner, IonInput, IonGrid, IonRow, IonCol, IonIcon } from '@ionic/vue';
-import { micOutline, stopCircleOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 import { useInterviewStore } from '@/stores/interview';
 import { generateResponse } from '@/services/openai';
@@ -322,64 +329,3 @@ function finishInterview() {
   router.push('/');
 }
 </script>
-
-<style scoped>
-ion-content {
-  --background: linear-gradient(180deg, #f4f5f8 0%, #e0e0e0 100%);
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  color: var(--ion-color-medium);
-  margin-bottom: 2rem;
-}
-
-ion-card {
-  margin: 1rem 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-ion-card-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-}
-
-.custom-button {
-  --border-radius: 16px;
-  margin: 1rem 0;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.loading-container p {
-  margin-top: 1rem;
-  color: var(--ion-color-medium);
-}
-
-.job-title-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.skip-button {
-  --background: var(--ion-color-medium);
-  --color: var(--ion-color-light);
-}
-</style>
