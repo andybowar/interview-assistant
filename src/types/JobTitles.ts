@@ -1,0 +1,22 @@
+export enum JobTitle {
+  SoftwareEngineer = 'Software Engineer',
+  FrontendDeveloper = 'Frontend Developer',
+  BackendDeveloper = 'Backend Developer',
+  FullStackDeveloper = 'Full Stack Developer',
+  DevOpsEngineer = 'DevOps Engineer',
+  DataScientist = 'Data Scientist',
+  MachineLearningEngineer = 'Machine Learning Engineer',
+  ProductManager = 'Product Manager',
+  UXDesigner = 'UX Designer',
+  QAEngineer = 'QA Engineer',
+  SystemsArchitect = 'Systems Architect',
+  CloudEngineer = 'Cloud Engineer',
+  MobileAppDeveloper = 'Mobile App Developer',
+  EmbeddedSystemsEngineer = 'Embedded Systems Engineer',
+  SecurityEngineer = 'Security Engineer',
+  DatabaseAdministrator = 'Database Administrator',
+  NetworkEngineer = 'Network Engineer',
+  AIEngineer = 'AI Engineer',
+  BlockchainDeveloper = 'Blockchain Developer',
+  GameDeveloper = 'Game Developer'
+}
