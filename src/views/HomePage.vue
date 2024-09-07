@@ -23,8 +23,7 @@
             </h1>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-4xl">
               <button
-                class="gradient-button h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
-                :style="{ '--color-1': '#2563EB', '--color-2': '#3B82F6', '--color-3': '#60A5FA', '--complement': '#EB6025' }"
+                class="gradient-button practice-interview h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
                 @mousemove="updateGradient"
                 @click="navigateTo('PracticeInterview')"
               >
@@ -32,8 +31,7 @@
                 <span class="relative z-10">Practice Interview</span>
               </button>
               <button
-                class="gradient-button h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
-                :style="{ '--color-1': '#059669', '--color-2': '#10B981', '--color-3': '#34D399', '--complement': '#960531' }"
+                class="gradient-button real-interview h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
                 @mousemove="updateGradient"
                 @click="navigateTo('RealInterview')"
               >
@@ -41,8 +39,7 @@
                 <span class="relative z-10">Real Interview</span>
               </button>
               <button
-                class="gradient-button h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
-                :style="{ '--color-1': '#7C3AED', '--color-2': '#8B5CF6', '--color-3': '#A78BFA', '--complement': '#EDC13A' }"
+                class="gradient-button coding-challenge h-32 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg text-white rounded-lg flex flex-col items-center justify-center overflow-hidden"
                 @mousemove="updateGradient"
                 @click="navigateTo('CodingChallenge')"
               >
@@ -98,19 +95,12 @@ const updateGradient = (event: MouseEvent) => {
 .gradient-button {
   position: relative;
   isolation: isolate;
-  background: linear-gradient(to bottom right, var(--color-2), var(--color-1));
 }
 
 .gradient-button::before {
   content: '';
   position: absolute;
   inset: -300%;
-  background: radial-gradient(
-    circle 5000px at var(--x, 20%) var(--y, 20%),
-    var(--complement),
-    var(--color-1),
-    transparent 60%
-  );
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: -1;
@@ -119,5 +109,56 @@ const updateGradient = (event: MouseEvent) => {
 
 .gradient-button:hover::before {
   opacity: 1;
+}
+
+.practice-interview {
+  --color-1: #2563EB;
+  --color-2: #003487;
+  --color-3: #60A5FA;
+  --complement: #EB6025;
+  background: linear-gradient(to bottom right, var(--color-2), var(--color-3));
+}
+
+.practice-interview::before {
+  background: radial-gradient(
+    circle 5000px at var(--x, 20%) var(--y, 20%),
+    var(--complement),
+    var(--color-1),
+    transparent 60%
+  );
+}
+
+.real-interview {
+  --color-1: #059669;
+  --color-2: #006744;
+  --color-3: #86ffd0;
+  --complement: #960531;
+  background: linear-gradient(to bottom right, var(--color-2), var(--color-3));
+}
+
+.real-interview::before {
+  background: radial-gradient(
+    circle 5000px at var(--x, 20%) var(--y, 20%),
+    var(--complement),
+    var(--color-1),
+    transparent 60%
+  );
+}
+
+.coding-challenge {
+  --color-1: #7C3AED;
+  --color-2: #2b0486;
+  --color-3: #A78BFA;
+  --complement: #EDC13A;
+  background: linear-gradient(to bottom right, var(--color-2), var(--color-3));
+}
+
+.coding-challenge::before {
+  background: radial-gradient(
+    circle 5000px at var(--x, 20%) var(--y, 20%),
+    var(--complement),
+    var(--color-1),
+    transparent 60%
+  );
 }
 </style>
