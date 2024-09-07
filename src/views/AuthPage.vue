@@ -2,12 +2,17 @@
   <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        {{ isSignUp ? 'Sign Up' : 'Login' }}
+        Welcome to InterviewPal
       </h2>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <p class="text-sm text-gray-600 mb-6 text-center">
+          Our sign-in process is smooth and easy. Simply enter your email address below, 
+          whether you're a new user or returning. We'll send you a magic link for secure, 
+          password-free access to your account.
+        </p>
         <form
           class="space-y-6"
           @submit.prevent="handleSubmit"
@@ -36,26 +41,17 @@
               :disabled="isLoading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {{ isSignUp ? 'Sign Up' : 'Login' }}
+              Continue with Email
             </button>
           </div>
         </form>
-
-        <div class="mt-6">
-          <button
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            @click="toggleAuthMode"
-          >
-            {{ isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up' }}
-          </button>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useSupabase } from '@/composables/useSupabase';
 import { useToast } from '@/composables/useToast';
 
@@ -63,10 +59,7 @@ const { supabase } = useSupabase();
 const { showToast } = useToast();
 
 const email = ref('');
-const isSignUp = ref(false);
 const isLoading = ref(false);
-
-const buttonText = computed(() => isSignUp.value ? 'Sign Up' : 'Login');
 
 async function handleSubmit() {
   if (!email.value) return;
@@ -91,9 +84,5 @@ async function handleSubmit() {
   } finally {
     isLoading.value = false;
   }
-}
-
-function toggleAuthMode() {
-  isSignUp.value = !isSignUp.value;
 }
 </script>

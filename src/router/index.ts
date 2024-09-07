@@ -1,3 +1,9 @@
+declare const process: {
+  env: {
+    BASE_URL: string;
+  };
+};
+
 import { createRouter, createWebHistory } from 'vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
@@ -27,19 +33,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/practice-interview',
     name: 'PracticeInterview',
     component: () => import('@/views/PracticeInterview.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/real-interview',
     name: 'RealInterview',
     component: () => import('@/views/RealInterview.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/coding-challenge',
     name: 'CodingChallenge',
     component: () => import('@/views/CodingChallenge.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   }
 ];
 
