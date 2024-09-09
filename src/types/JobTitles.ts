@@ -1,4 +1,5 @@
 export enum JobTitle {
+General = 'General',
   SoftwareEngineer = 'Software Engineer',
   FrontendDeveloper = 'Frontend Developer',
   BackendDeveloper = 'Backend Developer',
@@ -18,5 +19,6 @@ export enum JobTitle {
   NetworkEngineer = 'Network Engineer',
   AIEngineer = 'AI Engineer',
   BlockchainDeveloper = 'Blockchain Developer',
-  GameDeveloper = 'Game Developer'
+  GameDeveloper = 'Game Developer',
+  Other = 'Other'
 }
