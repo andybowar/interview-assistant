@@ -5,13 +5,21 @@
         <h1 class="text-2xl font-bold text-gray-900">
           AI Interview Assistant
         </h1>
-        <button
-          v-if="isAuthenticated"
-          class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
-          @click="signOut"
-        >
-          Sign Out
-        </button>
+        <div class="flex space-x-4">
+          <router-link
+            to="/job-hub"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Job Hub
+          </router-link>
+          <button
+            v-if="isAuthenticated"
+            class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
+            @click="signOut"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </header>
     <main class="flex-1 flex flex-col">
@@ -77,6 +85,10 @@ async function signOut() {
   }
 }
 
+async function jobHub() {
+  router.push({ name: 'JobHub' });
+}
+
 const updateGradient = (event: MouseEvent) => {
   const button = event.currentTarget as HTMLButtonElement;
   const rect = button.getBoundingClientRect();
@@ -90,7 +102,6 @@ const updateGradient = (event: MouseEvent) => {
   button.style.setProperty('--y', `${50 + offsetY}%`);
 }
 </script>
-
 <style scoped>
 .gradient-button {
   position: relative;

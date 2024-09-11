@@ -19,16 +19,71 @@
           What is the job title for which you are interviewing?
         </p>
         <div class="w-full max-w-sm mx-auto">
-          <div class="relative bg-white border border-gray-300 rounded-md shadow-sm">
+          <!-- Job Category Dropdown -->
+          <div
+            ref="categoryDropdownRef"
+            class="relative bg-white border border-gray-300 rounded-md shadow-sm mb-4"
+            tabindex="0"
+            @blur="handleCategoryBlur"
+          >
             <div
-              v-if="!isOtherSelected"
-              @click="toggleExpanded"
               class="flex items-center justify-between w-full px-4 py-2 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              @click="toggleCategoryExpanded"
             >
-              <span>{{ selectedOption ? selectedOption.label : 'Select a job title' }}</span>
+              <span>{{ selectedCategory ? selectedCategory : 'Select a job category' }}</span>
               <svg
                 class="w-5 h-5 text-gray-400 transition-transform duration-300"
-                :class="{ 'transform rotate-180': isExpanded }"
+                :class="{ 'transform rotate-180': isCategoryExpanded }"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div
+              class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
+              :style="{
+                maxHeight: isCategoryExpanded ? '40vh' : '40px',
+                opacity: isCategoryExpanded ? 1 : 0,
+                visibility: isCategoryExpanded ? 'visible' : 'hidden',
+              }"
+            >
+              <ul class="py-1 max-h-[40vh] overflow-y-auto">
+                <li
+                  v-for="category in jobCategories"
+                  :key="category"
+                  class="px-4 py-2 text-gray-900 cursor-pointer hover:bg-blue-100 transition duration-150 ease-in-out"
+                  :class="{ 'bg-blue-100': category === selectedCategory }"
+                  @click="selectCategory(category)"
+                >
+                  {{ category }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Job Title Dropdown (visible only when a category is selected) -->
+          <div
+            v-if="selectedCategory"
+            ref="jobTitleDropdownRef"
+            class="relative bg-white border border-gray-300 rounded-md shadow-sm"
+            tabindex="0"
+            @blur="handleJobTitleBlur"
+          >
+            <div
+              v-if="!isOtherSelected"
+              class="flex items-center justify-between w-full px-4 py-2 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              @click="toggleJobTitleExpanded"
+            >
+              <span>{{ selectedJobTitle ? selectedJobTitle : 'Select a job title' }}</span>
+              <svg
+                class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                :class="{ 'transform rotate-180': isJobTitleExpanded }"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -50,13 +105,13 @@
                 placeholder="Enter your job title"
                 class="w-full focus:outline-none"
                 @keyup.enter="setCustomJobTitle"
-              />
+              >
               <svg
-                @click="clearCustomJobTitle"
                 class="w-5 h-5 text-gray-400 cursor-pointer"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
+                @click="clearCustomJobTitle"
               >
                 <path
                   fill-rule="evenodd"
@@ -69,20 +124,20 @@
               v-if="!isOtherSelected"
               class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
               :style="{
-                maxHeight: isExpanded ? '40vh' : '40px',
-                opacity: isExpanded ? 1 : 0,
-                visibility: isExpanded ? 'visible' : 'hidden',
+                maxHeight: isJobTitleExpanded ? '40vh' : '40px',
+                opacity: isJobTitleExpanded ? 1 : 0,
+                visibility: isJobTitleExpanded ? 'visible' : 'hidden',
               }"
             >
               <ul class="py-1 max-h-[40vh] overflow-y-auto">
                 <li
-                  v-for="option in jobTitleOptions"
-                  :key="option.value"
+                  v-for="jobTitle in jobTitlesForCategory"
+                  :key="jobTitle"
                   class="px-4 py-2 text-gray-900 cursor-pointer hover:bg-blue-100 transition duration-150 ease-in-out"
-                  :class="{ 'bg-blue-100': option.value === selectedOption?.value }"
-                  @click="selectOption(option)"
+                  :class="{ 'bg-blue-100': jobTitle === selectedJobTitle }"
+                  @click="selectJobTitle(jobTitle)"
                 >
-                  {{ option.label }}
+                  {{ jobTitle }}
                 </li>
               </ul>
             </div>
@@ -90,7 +145,7 @@
         </div>
         <button
           class="w-full mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          :disabled="!selectedOption"
+          :disabled="!selectedJobTitle"
           @click="setJobTitle"
         >
           Start Interview
@@ -224,10 +279,20 @@ import { useRouter } from 'vue-router';
 import { useInterviewStore } from '@/stores/interview';
 import { generateResponse } from '@/services/openai';
 import type { SpeechRecognition } from '@/types/SpeechRecognition';
-import { JobTitle } from '@/types/JobTitles';
+import { JobCategory, JobTitles } from '@/types/JobTitles';
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
+const supabaseAnonKey = process.env.VUE_APP_SUPABASE_ANON_KEY
 
 const router = useRouter();
 const interviewStore = useInterviewStore();
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL or Anon Key is missing');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const jobTitle = ref('');
 const currentQuestion = ref<{ question: string; id: number } | null>(null);
@@ -242,28 +307,46 @@ let recognition: SpeechRecognition | null = null;
 
 const initialQuestion = "Tell me about some of your previous experience";
 
-const isExpanded = ref(false);
-const selectedOption = ref<{ value: string; label: string } | null>(null);
+const isCategoryExpanded = ref(false);
+const isJobTitleExpanded = ref(false);
+const selectedCategory = ref<JobCategory | null>(null);
+const selectedJobTitle = ref<string | null>(null);
 const isOtherSelected = ref(false);
 const customJobTitle = ref('');
 
-const jobTitleOptions = computed(() => 
-  Object.entries(JobTitle).map(([key, value]) => ({
-    value: key,
-    label: value
-  }))
-);
+const categoryDropdownRef = ref<HTMLDivElement | null>(null);
+const jobTitleDropdownRef = ref<HTMLDivElement | null>(null);
 
-function toggleExpanded() {
+const jobCategories = computed(() => Object.values(JobCategory));
+
+const jobTitlesForCategory = computed(() => {
+  if (selectedCategory.value) {
+    return JobTitles[selectedCategory.value];
+  }
+  return [];
+});
+
+function toggleCategoryExpanded() {
+  isCategoryExpanded.value = !isCategoryExpanded.value;
+  isJobTitleExpanded.value = false; // Close job title dropdown when opening category dropdown
+}
+
+function toggleJobTitleExpanded() {
   if (!isOtherSelected.value) {
-    isExpanded.value = !isExpanded.value;
+    isJobTitleExpanded.value = !isJobTitleExpanded.value;
   }
 }
 
-function selectOption(option: { value: string; label: string }) {
-  selectedOption.value = option;
-  isExpanded.value = false;
-  if (option.value === 'Other') {
+function selectCategory(category: JobCategory) {
+  selectedCategory.value = category;
+  selectedJobTitle.value = null;
+  isCategoryExpanded.value = false;
+}
+
+function selectJobTitle(jobTitle: string) {
+  selectedJobTitle.value = jobTitle;
+  isJobTitleExpanded.value = false;
+  if (jobTitle === 'Other') {
     isOtherSelected.value = true;
     customJobTitle.value = '';
   } else {
@@ -273,32 +356,48 @@ function selectOption(option: { value: string; label: string }) {
 
 function setCustomJobTitle() {
   if (customJobTitle.value.trim()) {
-    selectedOption.value = { value: 'Other', label: customJobTitle.value.trim() };
+    selectedJobTitle.value = customJobTitle.value.trim();
     isOtherSelected.value = false;
   }
 }
 
 function clearCustomJobTitle() {
   customJobTitle.value = '';
-  selectedOption.value = null;
+  selectedJobTitle.value = null;
   isOtherSelected.value = false;
 }
 
-function setJobTitle() {
-  if (selectedOption.value) {
-    jobTitle.value = selectedOption.value.label;
+async function setJobTitle() {
+  if (selectedJobTitle.value) {
+    jobTitle.value = selectedJobTitle.value;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('insert-job-title', {
+        body: { jobTitle: selectedJobTitle.value },
+      });
+
+      if (error) throw error;
+
+      console.log('Job title inserted successfully:', data);
+    } catch (error) {
+      console.error('Error inserting job title:', error);
+      // You might want to show an error message to the user here
+    }
+
     setInitialQuestion();
   }
 }
 
 onMounted(() => {
   initializeSpeechRecognition();
+  window.addEventListener('keydown', handleKeydown);
 });
 
 onUnmounted(() => {
   if (recognition) {
     recognition.stop();
   }
+  window.removeEventListener('keydown', handleKeydown);
 });
 
 function initializeSpeechRecognition() {
@@ -416,7 +515,9 @@ async function getOverallFeedback(jobTitle: string): Promise<string> {
   const answersText = allAnswers.map(a => `Q${a.questionId}: ${a.answer}`).join('\n\n');
 
   const prompt = `
-    As an AI interview coach, review the following practice interview responses for a ${jobTitle} position and provide overall feedback. Highlight strengths, areas for improvement, and give 2-3 specific tips for the candidate to focus on for future interviews. Be encouraging but honest.
+    As an AI interview coach, review the following practice interview responses for a ${jobTitle} position and provide overall feedback. 
+    Highlight strengths. Bluntly provide areas for improvement, and give 2-3 specific tips for the candidate to focus on for future interviews. 
+    Be encouraging but honest.
 
     ${answersText}
 
@@ -434,9 +535,26 @@ async function getOverallFeedback(jobTitle: string): Promise<string> {
 function finishInterview() {
   router.push('/');
 }
-</script>
 
-<style scoped>
+function handleCategoryBlur(event: FocusEvent) {
+  if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(event.relatedTarget as Node)) {
+    isCategoryExpanded.value = false;
+  }
+}
+
+function handleJobTitleBlur(event: FocusEvent) {
+  if (jobTitleDropdownRef.value && !jobTitleDropdownRef.value.contains(event.relatedTarget as Node)) {
+    isJobTitleExpanded.value = false;
+  }
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    isCategoryExpanded.value = false;
+    isJobTitleExpanded.value = false;
+  }
+}
+</script><style scoped>
 ul {
   scrollbar-width: thin;
   scrollbar-color: #4B5563 #E5E7EB;
@@ -456,3 +574,5 @@ ul::-webkit-scrollbar-thumb {
   border: 2px solid #E5E7EB;
 }
 </style>
+
+

@@ -6,7 +6,7 @@ declare const process: {
 
 import { createRouter, createWebHistory } from 'vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import { useAuth } from '@/composables/useAuth';
+import { useAuth } from '../composables/useAuth';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -16,35 +16,47 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/home',
     name: 'Home',
-    component: () => import('@/views/HomePage.vue'),
+    component: () => import('../views/HomePage.vue'),
     meta: { requiresAuth: false }
   },
   {
     path: '/auth',
     name: 'Auth',
-    component: () => import('@/views/AuthPage.vue')
+    component: () => import('../views/AuthPage.vue')
   },
   {
     path: '/auth/callback',
     name: 'AuthCallback',
-    component: () => import('@/views/AuthCallback.vue')
+    component: () => import('../views/AuthCallback.vue')
+  },
+  {
+    path: '/job-hub',
+    name: 'JobHub',
+    component: () => import('../views/JobHub.vue'),
+    meta: { requiresAuth: false }
   },
   {
     path: '/practice-interview',
     name: 'PracticeInterview',
-    component: () => import('@/views/PracticeInterview.vue'),
+    component: () => import('../views/PracticeInterview.vue'),
     meta: { requiresAuth: false }
   },
   {
     path: '/real-interview',
     name: 'RealInterview',
-    component: () => import('@/views/RealInterview.vue'),
+    component: () => import('../views/RealInterview.vue'),
     meta: { requiresAuth: false }
   },
   {
     path: '/coding-challenge',
     name: 'CodingChallenge',
-    component: () => import('@/views/CodingChallenge.vue'),
+    component: () => import('../views/CodingChallenge.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/SettingsPage.vue'),
     meta: { requiresAuth: false }
   }
 ];
