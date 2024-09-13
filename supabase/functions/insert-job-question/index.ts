@@ -12,37 +12,30 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  try {
-    // Create a Supabase client with the Auth context of the logged in user
+  try {    
+    // Create a Supabase client
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
     )
 
     // Get the session of the user
     const {
-      data: { user },
+        data: { user },
     } = await supabaseClient.auth.getUser()
-
+    
     if (!user) {
-      throw new Error('No user found')
+        throw new Error('No user found')
     }
+    
+    const { jobTitleId, question } = await req.json()
 
-    // Parse the request body
-    const { question } = await req.json()
-    const { jobTitleId } = await req.json()
-
-    if (!question) {
-      throw new Error('Question is required')
-    }
-
-    // Insert the record into the job_title table
     const { data, error } = await supabaseClient
-      .from('interview_question')
-      .insert({ question: question, job_title_id: jobTitleId })
-      .select()
-
+    .from('interview_question')
+    .insert({ job_title_id: jobTitleId, question: question })
+    .select()
+    
     if (error) throw error
 
     return new Response(JSON.stringify({ success: true, data }), {
@@ -50,7 +43,7 @@ serve(async (req) => {
       status: 200,
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
     })

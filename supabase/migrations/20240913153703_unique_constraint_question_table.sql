@@ -1,0 +1,1 @@
+alter table public.interview_question add constraint interview_question_job_title_uq unique (job_title_id, question);
