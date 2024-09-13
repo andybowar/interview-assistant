@@ -146,7 +146,7 @@
         <button
           class="w-full mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           :disabled="!selectedJobTitle"
-          @click="handleStartInterview"
+          @click="setJobTitle"
         >
           Start Interview
         </button>
@@ -370,7 +370,7 @@ function clearCustomJobTitle() {
   isOtherSelected.value = false;
 }
 
-async function setJobTitle(): Promise<string | null> {
+async function setJobTitle() {
   if (selectedJobTitle.value) {
     jobTitle.value = selectedJobTitle.value;
     
@@ -382,7 +382,8 @@ async function setJobTitle(): Promise<string | null> {
       if (error) throw error;
       
       console.log('Job title inserted successfully:', data);
-      return data.data[0].id;
+      await insertJobQuestions(data.data[0].id, getQuestionsForCategory(selectedCategory.value as JobCategory));
+      generateNextQuestion(selectedCategory.value as JobCategory);
     } catch (error) {
       console.error('Error inserting job title:', error);
       
@@ -401,10 +402,8 @@ async function setJobTitle(): Promise<string | null> {
       // Reset the job title selection
       jobTitle.value = '';
       selectedJobTitle.value = null;
-      return null;
     }
   }
-  return null;
 }
 
 onMounted(() => {
@@ -471,7 +470,8 @@ function getQuestionsForCategory(category: JobCategory): string[] {
   }
 }
 
-async function insertJobQuestions(jobTitleId: string, questions: string[]) {
+async function insertJobQuestions(jobTitleId: string, questions: string[]): Promise<Map<string, string> | undefined> {
+  const insertedQuestions = new Map<string, string>();
   for (const question of questions) {
     try {
       const { data, error } = await supabase.functions.invoke('insert-job-question', {
@@ -480,25 +480,14 @@ async function insertJobQuestions(jobTitleId: string, questions: string[]) {
 
       if (error) throw error;
       console.log('Job question inserted successfully:', data);
+      insertedQuestions.set(data.data[0].id, data.data[0].question);
     } catch (error) {
       console.error('Error inserting job question:', error);
       showToast(`Error inserting question: ${question}. Please try again later.`, 'error');
     }
   }
-}
 
-async function handleStartInterview() {
-  try {
-    const jobTitleId = await setJobTitle();
-    if (jobTitleId) {
-      console.log('Job title ID:', jobTitleId);
-      await insertJobQuestions(jobTitleId, getQuestionsForCategory(selectedCategory.value as JobCategory));
-      await generateNextQuestion(selectedCategory.value as JobCategory);
-    }
-  } catch (error) {
-    console.error('Error starting interview:', error);
-    showToast('Failed to start interview. Please try again.', 'error');
-  }
+  return insertedQuestions;
 }
 
 async function generateNextQuestion(category: JobCategory) {
