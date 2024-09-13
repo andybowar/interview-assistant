@@ -1,21 +1,33 @@
-export enum JobCategory {
-    General = 'General',
-    AccountExecutive = 'Account Executive',
-    Accountant = 'Accountant',
-    BusinessAnalyst = 'Business Analyst',
-    CorporateFinance = 'Corporate Finance',
-    CustomerSuccessManager = 'Customer Success Manager',
-    InvestmentBanker = 'Investment Banker',
-    MarketingManager = 'Marketing Manager',
-    ProjectManager = 'Project Manager',
-    RelationshipManager = 'Relationship Manager',
-    SaleDevelopmentRepresentative = 'Sale Development Representative',
-    SoftwareEngineer = 'Software Engineer',
-    WealthManager = 'Wealth Manager',
-}
+import { JobCategory } from "./JobTitles";
 
-export const JobTitles: Record<JobCategory, string[]> = {
-    [JobCategory.General]: ['Operations Manager', 'Administrative Coordinator', 'Business Operations Analyst', 'Office Manager', 'Executive Assistant', 'Other'],
+export const Questions: Record<JobCategory, string[]> = {
+    [JobCategory.General]: [
+        'Tell me about yourself.', 
+        'What is your greatest strength?', 
+        'What is your greatest weakness?', 
+        'Why should we hire you?', 
+        'Why do you want to work here?', 
+        'Tell me about a time you showed leadership',
+        'Tell me about a time you were successful on a team',
+        'What would your coworkers say about you?',
+        'Why do you want to leave your current role?',
+        'Describe your most challenging project',
+        'Tell me about something you have accomplished that you are proud of.',
+        'Can you explain your employment gap?',
+        'What are your salary expectations?',
+        'What do you like to do outside of work?',
+        'Tell me about a time you had to manage conflicting priorities',
+        'Where do you see yourself in five years?',
+        'Describe your leadership style',
+        'Tell me about a time you failed or made a mistake.',
+        'Tell me about a time you worked with a difficult person.',
+        'Tell me about a time you disagreed with someone..',
+        'Tell me about a time you created a goal and achieved it.',
+        'Tell me about a time you surpassed people\'s expectations.',
+        'Tell me about a time you had to handle pressure.',
+        'Tell me about a time you had to learn something quickly.',
+        'Tell me about a time you had to persuade someone.',
+        'Do you have any questions for me?'],
     [JobCategory.AccountExecutive]: ['Sales Executive', 'Account Manager', 'Client Services Executive', 'Business Development Manager', 'Key Account Manager', 'Other'],
     [JobCategory.Accountant]: ['Tax Accountant', 'Forensic Accountant', 'Cost Accountant', 'Auditor Accountant', 'Financial Accountant', 'Other'],
     [JobCategory.BusinessAnalyst]: ['Systems Analyst', 'Business Systems Analyst', 'Process Analyst', 'Data Analyst', 'Financial Analyst', 'Other'],
@@ -29,5 +41,3 @@ export const JobTitles: Record<JobCategory, string[]> = {
     [JobCategory.SoftwareEngineer]: ['Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'DevOps Engineer', 'Mobile App Developer', 'Other'],
     [JobCategory.WealthManager]: ['Investment Advisor', 'Portfolio Manager', 'Financial Planner', 'Private Banker', 'Estate Manager', 'Other'],
 };
-
-export type JobTitleString = typeof JobTitles[keyof typeof JobTitles][number];

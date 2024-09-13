@@ -13,11 +13,15 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('Authorization header is required')
+    }
       // Create a Supabase client with the Auth context of the logged in user
       const supabaseClient = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
           Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-          { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
+          { global: { headers: { Authorization: authHeader } } }
         )
         
         // Get the session of the user
@@ -26,12 +30,16 @@ serve(async (req) => {
         } = await supabaseClient.auth.getUser()
 
         if (!user) {
-          throw new Error('No user found')
+            throw new Error('No user found')
         }
 
+        const { jobTitle } = await req.json()
+
         const { data, error } = await supabaseClient
-        .from('users')
+        .from('job_title')
         .select()
+        .eq('job_title', jobTitle)
+        .eq('user_uuid', user.id)
 
         if (error) throw error
 

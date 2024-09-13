@@ -1,31 +1,26 @@
-import { ref, onUnmounted } from 'vue';
+import { ref } from 'vue';
 
 interface Toast {
   message: string;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'info';
+  dismissible: boolean;
 }
 
+const toast = ref<Toast | null>(null);
+
 export function useToast() {
-  const toast = ref<Toast | null>(null);
-  const timeoutId = ref<number | null>(null);
-
-  function showToast(message: string, type: 'success' | 'error' = 'success') {
-    toast.value = { message, type };
-
-    if (timeoutId.value) {
-      clearTimeout(timeoutId.value);
+  const showToast = (message: string, type: 'success' | 'error' | 'info', dismissible = false) => {
+    toast.value = { message, type, dismissible };
+    if (!dismissible) {
+      setTimeout(() => {
+        toast.value = null;
+      }, 6000);
     }
+  };
 
-    timeoutId.value = window.setTimeout(() => {
-      toast.value = null;
-    }, 3000);
-  }
+  const dismissToast = () => {
+    toast.value = null;
+  };
 
-  onUnmounted(() => {
-    if (timeoutId.value) {
-      clearTimeout(timeoutId.value);
-    }
-  });
-
-  return { toast, showToast };
+  return { toast, showToast, dismissToast };
 }

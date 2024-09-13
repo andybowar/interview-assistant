@@ -39,19 +39,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/practice-interview',
     name: 'PracticeInterview',
     component: () => import('../views/PracticeInterview.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path: '/real-interview',
     name: 'RealInterview',
     component: () => import('../views/RealInterview.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path: '/coding-challenge',
     name: 'CodingChallenge',
     component: () => import('../views/CodingChallenge.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path: '/settings',

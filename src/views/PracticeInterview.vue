@@ -131,13 +131,13 @@
             >
               <ul class="py-1 max-h-[40vh] overflow-y-auto">
                 <li
-                  v-for="jobTitle in jobTitlesForCategory"
-                  :key="jobTitle"
+                  v-for="jobTitleInCategory in jobTitlesForCategory"
+                  :key="jobTitleInCategory"
                   class="px-4 py-2 text-gray-900 cursor-pointer hover:bg-blue-100 transition duration-150 ease-in-out"
-                  :class="{ 'bg-blue-100': jobTitle === selectedJobTitle }"
-                  @click="selectJobTitle(jobTitle)"
+                  :class="{ 'bg-blue-100': jobTitleInCategory === selectedJobTitle }"
+                  @click="selectJobTitle(jobTitleInCategory)"
                 >
-                  {{ jobTitle }}
+                  {{ jobTitleInCategory }}
                 </li>
               </ul>
             </div>
@@ -158,7 +158,7 @@
       >
         <div class="bg-white rounded-lg shadow-md p-6">
           <h2 class="text-2xl font-semibold mb-4">
-            Question {{ currentQuestion.id }}
+            Question {{ currentQuestion.id + 1 }}
           </h2>
           <p class="text-gray-700">
             {{ currentQuestion.question }}
@@ -209,14 +209,14 @@
           <button
             :disabled="isLoading || isListening"
             class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            @click="submitAnswer"
+            @click="submitAnswer(selectedCategory as JobCategory)"
           >
             {{ isLoading ? 'Analyzing...' : 'Submit Answer' }}
           </button>
           <button
             :disabled="isLoading"
             class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
-            @click="skipQuestion"
+            @click="skipQuestion(selectedCategory as JobCategory)"
           >
             Skip Question
           </button>
@@ -266,7 +266,7 @@
           />
         </svg>
         <p class="text-gray-600">
-          Generating final feedback...
+          Loading...
         </p>
       </div>
     </div>
@@ -281,6 +281,11 @@ import { generateResponse } from '@/services/openai';
 import type { SpeechRecognition } from '@/types/SpeechRecognition';
 import { JobCategory, JobTitles } from '@/types/JobTitles';
 import { createClient } from '@supabase/supabase-js'
+import { Questions } from '@/types/Questions';
+import { useToast } from '@/composables/useToast';
+import { FunctionsHttpError } from '@supabase/supabase-js'
+
+const { showToast } = useToast();
 
 const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
 const supabaseAnonKey = process.env.VUE_APP_SUPABASE_ANON_KEY
@@ -304,8 +309,6 @@ let questionCount = 0;
 
 const isListening = ref(false);
 let recognition: SpeechRecognition | null = null;
-
-const initialQuestion = "Tell me about some of your previous experience";
 
 const isCategoryExpanded = ref(false);
 const isJobTitleExpanded = ref(false);
@@ -377,14 +380,29 @@ async function setJobTitle() {
       });
 
       if (error) throw error;
-
+      
       console.log('Job title inserted successfully:', data);
+      insertJobQuestions(data.data[0].id, getQuestionsForCategory(selectedCategory.value as JobCategory));
+      generateNextQuestion(selectedCategory.value as JobCategory);
     } catch (error) {
       console.error('Error inserting job title:', error);
-      // You might want to show an error message to the user here
+      
+      if (error instanceof FunctionsHttpError) {
+        // Handle specific FunctionsHttpError
+        if (error.context?.status === 400) {
+          showToast('Error inserting job title. Please refer to Job Hub to see if you have already answered questions for this job.', 'error');
+        } else {
+          showToast(`Server error: ${error.message}`, 'error');
+        }
+      } else {
+        // Handle other types of errors
+        showToast('An unexpected error occurred. Please try again.', 'error');
+      }
+      
+      // Reset the job title selection
+      jobTitle.value = '';
+      selectedJobTitle.value = null;
     }
-
-    setInitialQuestion();
   }
 }
 
@@ -442,54 +460,51 @@ function toggleListening() {
   }
 }
 
-function setInitialQuestion() {
-  questionCount = 1;
-  currentQuestion.value = { question: initialQuestion, id: questionCount };
-}
-
-async function generateNextQuestion() {
-  isLoading.value = true;
-  questionCount++;
-
-  const prompt = `
-    As an AI interviewer for a ${jobTitle.value} position, generate the next interview question. 
-    ${questionCount > 2 ? `The candidate's previous answer was: "${userAnswer.value}"` : ''}
-    The question should be relevant to the job role and aim to assess the candidate's skills, experience, and fit for the position. 
-    The question should be mostly unrelated to the previous question.
-    Provide only the question text without any additional context or explanation.
-  `;
-
-  try {
-    const response = await generateResponse(prompt);
-    currentQuestion.value = { question: response, id: questionCount };
-    userAnswer.value = '';
-  } catch (error) {
-    console.error('Error generating question:', error);
-    currentQuestion.value = { question: "An error occurred while generating the question. Please try again.", id: questionCount };
-  } finally {
-    isLoading.value = false;
+function getQuestionsForCategory(category: JobCategory): string[] {
+  if (category in Questions) {
+    const questions = Questions[category];
+    return questions;
+  } else {
+    console.warn(`No questions found for category: ${category}`);
+    return [];
   }
 }
 
-async function skipQuestion() {
+async function insertJobQuestions(jobTitleId: string, questions: string[]) {
+  for (const question of questions) {
+    console.log('Inserting job questions:', jobTitleId, question);
+    await supabase.functions.invoke('insert-job-question', {
+      body: { jobTitleId: jobTitleId, question: question },
+    });
+  }
+}
+
+async function generateNextQuestion(category: JobCategory) {
+  isLoading.value = false;
+  
+  const questions = getQuestionsForCategory(category);
+  
+  currentQuestion.value = { question: questions[questionCount], id: questionCount };
+
+  questionCount++;
+}
+
+async function skipQuestion(category: JobCategory) {
   if (isListening.value) {
     toggleListening(); // Stop listening if it's active
   }
   
-  if (questionCount < 5) {
-    if (questionCount === 1) {
-      // If skipping the initial question, generate a new one
-      await generateNextQuestion();
-    } else {
-      await generateNextQuestion();
-    }
+  userAnswer.value = '';
+
+  if (questionCount < getQuestionsForCategory(category).length) {
+    await generateNextQuestion(category);
   } else {
     currentQuestion.value = null;
     feedback.value = await getOverallFeedback(jobTitle.value);
-  }
+  }  
 }
 
-async function submitAnswer() {
+async function submitAnswer(category: JobCategory) {
   if (currentQuestion.value && userAnswer.value) {
     isLoading.value = true;
     
@@ -500,8 +515,10 @@ async function submitAnswer() {
     // Store the answer without feedback
     interviewStore.addAnswer(currentQuestion.value.id, userAnswer.value, '');
     
-    if (questionCount < 5) {  // Limit to 5 questions
-      await generateNextQuestion();
+    userAnswer.value = '';
+
+    if (questionCount < getQuestionsForCategory(category).length) {
+      await generateNextQuestion(category);
     } else {
       currentQuestion.value = null;
       feedback.value = await getOverallFeedback(jobTitle.value);

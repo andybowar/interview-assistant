@@ -1,0 +1,1 @@
+alter table public.job_title add constraint job_title_user_uuid_key unique (job_title, user_uuid);
