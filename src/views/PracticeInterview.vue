@@ -320,6 +320,8 @@ const customJobTitle = ref('');
 const categoryDropdownRef = ref<HTMLDivElement | null>(null);
 const jobTitleDropdownRef = ref<HTMLDivElement | null>(null);
 
+const questions = ref<Map<string, string>>();
+
 const jobCategories = computed(() => Object.values(JobCategory));
 
 const jobTitlesForCategory = computed(() => {
@@ -382,7 +384,7 @@ async function setJobTitle() {
       if (error) throw error;
       
       console.log('Job title inserted successfully:', data);
-      await insertJobQuestions(data.data[0].id, getQuestionsForCategory(selectedCategory.value as JobCategory));
+      questions.value = await insertJobQuestions(data.data[0].id, getQuestionsForCategory(selectedCategory.value as JobCategory));
       generateNextQuestion(selectedCategory.value as JobCategory);
     } catch (error) {
       console.error('Error inserting job title:', error);
@@ -517,6 +519,7 @@ async function skipQuestion(category: JobCategory) {
 
 async function submitAnswer(category: JobCategory) {
   if (currentQuestion.value && userAnswer.value) {
+    let questionId = '';
     isLoading.value = true;
     
     if (isListening.value) {
@@ -525,6 +528,34 @@ async function submitAnswer(category: JobCategory) {
     
     // Store the answer without feedback
     interviewStore.addAnswer(currentQuestion.value.id, userAnswer.value, '');
+    console.log('Questions:', questions.value);
+    if (questions.value) {
+      for (const [key, value] of questions.value.entries()) {
+        if (value === currentQuestion.value.question) {
+          questionId = key;
+        }
+      }
+    }
+
+    if (questionId === '' || questionId === undefined) {
+      console.error('Question ID not found for question:', currentQuestion.value.question);
+      return;
+    }
+
+    console.log('questionId:', questionId);
+    console.log('answer:', userAnswer.value);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('insert-answer', {
+        body: { questionId, answer: userAnswer.value },
+      });
+
+      if (error) throw error;
+      console.log('Answer inserted successfully:', data);
+    } catch (error) {
+      console.error('Error inserting job question:', error);
+      showToast(`Error inserting answer: ${userAnswer.value}. Please try again later.`, 'error');
+    }
     
     userAnswer.value = '';
 

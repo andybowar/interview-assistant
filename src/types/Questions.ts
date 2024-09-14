@@ -38,6 +38,12 @@ export const Questions: Record<JobCategory, string[]> = {
     [JobCategory.ProjectManager]: ['Scrum Master', 'Project Coordinator', 'Program Manager', 'Agile Project Manager', 'Construction Project Manager', 'Other'],
     [JobCategory.RelationshipManager]: ['Client Relationship Executive', 'Business Development Manager', 'Customer Relationship Manager', 'Account Relationship Manager', 'Partnership Manager', 'Other'],
     [JobCategory.SaleDevelopmentRepresentative]: ['Business Development Representative', 'Inside Sales Representative', 'Lead Qualification Specialist', 'Sales Prospector', 'Outbound Sales Representative', 'Other'],
-    [JobCategory.SoftwareEngineer]: ['Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'DevOps Engineer', 'Mobile App Developer', 'Other'],
+    [JobCategory.SoftwareEngineer]: [
+        '', 
+        'Backend Developer', 
+        'Full Stack Developer',
+        'DevOps Engineer',
+        'Mobile App Developer',
+        'Other'],
     [JobCategory.WealthManager]: ['Investment Advisor', 'Portfolio Manager', 'Financial Planner', 'Private Banker', 'Estate Manager', 'Other'],
 };
