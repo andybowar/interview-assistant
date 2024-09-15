@@ -1,6 +1,6 @@
  ***DISCLAIMER***
 
- This codebase is a side project for a practice interview app. It is not intended for production use...yet. Much of the FE code in this app is produced by AI. **Expect serious inefficiencies and bad practices in the code.**
+ This codebase is a side project for a practice interview app. Very much a work in progress. It is not intended for production use...yet. Much of the FE code in this app is produced by AI. **Expect serious inefficiencies and bad practices in the code.**
 
  * My current goal is to get this app to MVP.
  * I will refactor the code as needed to get the MVP out.
